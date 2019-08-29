@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="hintcolor">#8E8E8E</color>
+    <color name="black87">#DE000000</color>
+
+    <color name="cool_blues">#2193B0</color>
+    <color name="dark_ocean">#373B44</color>
+    <color name="deep_orange">#FE8C00</color>
+    <color name="evening_sunshine">#7B4397</color>
+    <color name="grade_gray">#2C3E50</color>
+    <color name="jade">#159957</color>
+    <color name="oh_happiness">#8AC745</color>
+    <color name="pinky_pink">#EE9CA7</color>
+    <color name="purple_light">#4E54C8</color>
+</resources>

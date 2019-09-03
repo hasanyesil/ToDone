@@ -56,7 +56,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
         final String CREATE_LISTS_TABLE = "CREATE TABLE " + TABLE_NAME_1 + " (" +
-                COLUMN_ID_1 + " INTEGER UNIQUE, " +
+                COLUMN_ID_1 + " TEXT UNIQUE, " +
                 COLUMN_NAME_1 + " TEXT, " +
                 COLUMN_CREATION_DATE_1 + " TEXT, " +
                 COLUMN_COLOR_1 + " TEXT, " +
@@ -65,8 +65,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_LISTS_TABLE);
 
         final String CREATE_TASK_TABLE = "CREATE TABLE " + TABLE_NAME_2 + " (" +
-                COLUMN_ID_2 + " INTEGER UNIQUE, " +
-                COLUMN_PARENT_LIST_ID_2 + " INTEGER, " +
+                COLUMN_ID_2 + " TEXT UNIQUE, " +
+                COLUMN_PARENT_LIST_ID_2 + " TEXT, " +
                 COLUMN_CONTENT_2 + " TEXT, " +
                 COLUMN_DUE_DATE_2 + " TEXT, " +
                 COLUMN_STATUS_2 + " INTEGER, " +
@@ -83,7 +83,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public long addList(List list){
         ContentValues cv = ListUtil.toContentValues(list);
-        Log.i("DATABASE", "addList: Added " + cv.getAsLong(COLUMN_ID_1) + " " + cv.getAsString(COLUMN_NAME_1)+ " " + cv.getAsInteger(COLUMN_TASK_COUNT_1));
+        Log.i("DATABASE", "addList: Added " + cv.getAsString(COLUMN_ID_1) + " " + cv.getAsString(COLUMN_NAME_1)+ " " + cv.getAsInteger(COLUMN_TASK_COUNT_1));
         java.util.List<Task> tasks = list.getTasks();
         if (list.getTaskCount() > 0)
             for (Task task : tasks){
@@ -105,7 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public int updateList(List list){
         final String where = COLUMN_ID_1 + "=?";
-        final String[] whereArgs = new String[]{Long.toString(list.getId())};
+        final String[] whereArgs = new String[]{list.getId()};
         ContentValues cv = ListUtil.toContentValues(list);
 
         return getWritableDatabase().update(TABLE_NAME_1,cv,where,whereArgs);
@@ -121,7 +121,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void updateTask(java.util.List<Task> tasks){
         for (Task task : tasks){
             final String where = COLUMN_ID_2 + "=?";
-            final String[] whereArgs = new String[]{Long.toString(task.getId())};
+            final String[] whereArgs = new String[]{task.getId()};
             ContentValues cv = TaskUtil.toContentValues(task);
             if (getWritableDatabase().update(TABLE_NAME_2,cv,where,whereArgs) == 0){
                 addTask(task);
@@ -129,11 +129,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public ArrayList<Task> getTasks(long listId){
+    public ArrayList<Task> getTasks(String listId){
         Cursor c = null;
         ArrayList<Task> tasks = new ArrayList<>();
         final String where = COLUMN_PARENT_LIST_ID_2 + "=?";
-        final String [] whereArgs = new String[]{Long.toString(listId)};
+        final String [] whereArgs = new String[]{listId};
         Log.i("DATABASE", "getTasks: ");
         try {
             c = getReadableDatabase().query(TABLE_NAME_2, null, where, whereArgs, null, null, null, null);

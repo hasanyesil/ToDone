@@ -33,7 +33,7 @@ public class ListUtil {
 
         if (listCursor.moveToFirst()){
             do {
-                final long mListId = listCursor.getLong(listCursor.getColumnIndex(DatabaseHelper.COLUMN_ID_1));
+                final String mListId = listCursor.getString(listCursor.getColumnIndex(DatabaseHelper.COLUMN_ID_1));
                 final String mListName = listCursor.getString(listCursor.getColumnIndex(DatabaseHelper.COLUMN_NAME_1));
                 final long mListCreationDate = listCursor.getLong(listCursor.getColumnIndex(DatabaseHelper.COLUMN_CREATION_DATE_1));
                 final int mListColor = listCursor.getInt(listCursor.getColumnIndex(DatabaseHelper.COLUMN_COLOR_1));

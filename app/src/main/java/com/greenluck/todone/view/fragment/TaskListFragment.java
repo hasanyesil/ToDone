@@ -152,7 +152,7 @@ public class TaskListFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
                 if (i == EditorInfo.IME_ACTION_NEXT || i == EditorInfo.IME_ACTION_DONE && !mTaskNameEdittext.getText().equals("")){
-                    Task task = new Task(ListUtil.generateUniqueId(),mTaskNameEdittext.getText().toString(),mList.getId(),settedTime,0,mList.getTaskCount());
+                    Task task = new Task(mTaskNameEdittext.getText().toString(),mList.getId(),settedTime,0,mList.getTaskCount());
                     addNewTask(task);
                     return true;
                 }
@@ -165,7 +165,7 @@ public class TaskListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (!mTaskNameEdittext.getText().toString().equals("")) {
-                    Task task = new Task(ListUtil.generateUniqueId(), mTaskNameEdittext.getText().toString(), mList.getId(), settedTime, 0, mList.getTaskCount());
+                    Task task = new Task(mTaskNameEdittext.getText().toString(), mList.getId(), settedTime, 0, mList.getTaskCount());
                     addNewTask(task);
                 }
             }
@@ -265,7 +265,7 @@ public class TaskListFragment extends Fragment {
         }
         mTaskNameEdittext.setText("");
         mSetReminderButton.setText("Reminder");
-
+        settedTime = 0;
         //Update progressbar
         mTaskProgressBar.setMax(mList.getTaskCount());
     }

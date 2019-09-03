@@ -82,7 +82,7 @@ public class AddListDialogFragment extends DialogFragment implements View.OnClic
                         String listName = mListNameEdittext.getText().toString();
                         if (!listName.equals("")){
                             java.util.List<Task> tasks = new ArrayList<>();
-                            List list = new List(ListUtil.generateUniqueId(),listName,System.currentTimeMillis(),selectedColor,0,tasks);
+                            List list = new List(listName,selectedColor);
                             mListDialogResult.getCreatedList(list);
                         }
                     }

@@ -19,9 +19,9 @@ public class TaskUtil {
         ArrayList<Task> tasks = new ArrayList<>();
         if (taskCursor.moveToFirst()){
             do{
-                final long mTaskId = taskCursor.getLong(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_ID_2));
+                final String mTaskId = taskCursor.getString(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_ID_2));
                 final String mContent = taskCursor.getString(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_CONTENT_2));
-                final long mParentListId = taskCursor.getLong(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_PARENT_LIST_ID_2));
+                final String mParentListId = taskCursor.getString(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_PARENT_LIST_ID_2));
                 final long mDueTime = taskCursor.getLong(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_DUE_DATE_2));
                 final int mStatus = taskCursor.getInt(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_STATUS_2));
                 final int mTaskOrder = taskCursor.getInt(taskCursor.getColumnIndex(DatabaseHelper.COLUMN_TASK_ORDER_2));

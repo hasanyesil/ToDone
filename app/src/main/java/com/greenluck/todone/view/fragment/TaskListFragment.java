@@ -25,6 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -238,8 +239,8 @@ public class TaskListFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mTaskRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         dividerItemDecoration.setDrawable(getContext().getDrawable(R.drawable.divider));
         mTaskRecyclerView.addItemDecoration(dividerItemDecoration);
-        mTaskRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mTaskRecyclerView.setAdapter(mTaskAdapter);
+        mTaskRecyclerView.setLayoutManager(new GridLayoutManager(getContext(),1));
 
         return v;
     }

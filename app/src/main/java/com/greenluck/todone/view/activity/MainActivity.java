@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
     Fragment mTaskFragment;
     private DatabaseHelper mDatabaseHelper;
     private ArrayList<List> mLists;
+    private ArrayList<List> mOldLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
         mDatabaseHelper = DatabaseHelper.getInstance(this);
         mLists = mDatabaseHelper.getLists();
+        mOldLists = (ArrayList<List>) mLists.clone();
+
 
         mMainFragment = getSupportFragmentManager().findFragmentByTag("ListFragment");
         //Control if fragment exist on memory (Rotation)
@@ -72,13 +75,25 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
     @Override
     protected void onStop() {
+        boolean isUpdated = false;
         for (List list : mLists){
-            mDatabaseHelper.addList(list);
-            Log.i("ListFromMainActivity", "onStop: Task count => " + list.getTaskCount());
-            java.util.List<Task> tasks = list.getTasks();
-            for (Task task : tasks) {
-                Log.i("LIST_FROM_STOP", "onStop: Task under list => " + task.getContent() + " status : " + task.getStatus());
+            for (List oldList : mOldLists){
+                if (list.getId().equals(oldList.getId())) {
+                    mDatabaseHelper.updateList(list);
+                    isUpdated = true;
+                    break;
+                }
             }
+            if (!isUpdated){
+                mDatabaseHelper.addList(list);
+                Log.i("ListFromMainActivity", "onStop: Task count => " + list.getTaskCount());
+                java.util.List<Task> tasks = list.getTasks();
+                for (Task task : tasks) {
+                    Log.i("LIST_FROM_STOP", "onStop: Task under list => " + task.getContent() + " status : " + task.getStatus());
+                }
+            }
+
+            isUpdated = false;
         }
         super.onStop();
     }

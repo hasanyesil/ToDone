@@ -107,7 +107,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         final String where = COLUMN_ID_1 + "=?";
         final String[] whereArgs = new String[]{list.getId()};
         ContentValues cv = ListUtil.toContentValues(list);
-
+        updateTask(list.getTasks());
         return getWritableDatabase().update(TABLE_NAME_1,cv,where,whereArgs);
     }
 

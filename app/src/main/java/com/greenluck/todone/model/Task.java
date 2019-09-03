@@ -5,11 +5,13 @@ import android.os.Parcelable;
 
 import com.greenluck.todone.util.ListUtil;
 
+import java.util.UUID;
+
 public class Task implements Parcelable {
 
-    private long mId;
+    private String mId;
     private String mContent;
-    private long mParentListId;
+    private String mParentListId;
     private long mDueTime;
     // status -> 0:uncomplated, 1:complated
     private int mStatus;
@@ -18,9 +20,9 @@ public class Task implements Parcelable {
 
 
     public Task(Parcel in){
-        mId = in.readLong();
+        mId = in.readString();
         mContent = in.readString();
-        mParentListId = in.readLong();
+        mParentListId = in.readString();
         mDueTime = in.readLong();
         mStatus = in.readInt();
         mTaskOrder = in.readInt();
@@ -46,9 +48,9 @@ public class Task implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeLong(mId);
+        parcel.writeString(mId);
         parcel.writeString(mContent);
-        parcel.writeLong(mParentListId);
+        parcel.writeString(mParentListId);
         parcel.writeLong(mDueTime);
         parcel.writeInt(mStatus);
         parcel.writeInt(mTaskOrder);
@@ -56,7 +58,7 @@ public class Task implements Parcelable {
 
 
     // For fetching tasks from database.
-    public Task(long id, String content, long listId, long dueTime, int status, int taskOrder) {
+    public Task(String id, String content, String listId, long dueTime, int status, int taskOrder) {
         mId = id;
         mContent = content;
         mParentListId = listId;
@@ -66,8 +68,8 @@ public class Task implements Parcelable {
     }
 
     // When user create new task
-    public Task(String content, long parentListId, long dueTime, int status, int taskOrder){
-        mId = ListUtil.generateUniqueId();
+    public Task(String content, String parentListId, long dueTime, int status, int taskOrder){
+        mId = UUID.randomUUID().toString();
         mContent = content;
         mParentListId = parentListId;
         mDueTime = dueTime;
@@ -75,11 +77,11 @@ public class Task implements Parcelable {
         mTaskOrder = taskOrder;
     }
 
-    public long getId() {
+    public String getId() {
         return mId;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         mId = id;
     }
 
@@ -91,11 +93,11 @@ public class Task implements Parcelable {
         mContent = content;
     }
 
-    public long getParentListId() {
+    public String getParentListId() {
         return mParentListId;
     }
 
-    public void setParentListId(int parentListId) {
+    public void setParentListId(String parentListId) {
         mParentListId = parentListId;
     }
 

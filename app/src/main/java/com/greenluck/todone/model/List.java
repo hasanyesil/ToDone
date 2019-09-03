@@ -3,13 +3,13 @@ package com.greenluck.todone.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.greenluck.todone.util.ListUtil;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class List implements Parcelable {
 
-    private long mId;
+    private String mId;
     private String mName;
     private long mCreationDate;
     private int mColor;
@@ -18,7 +18,7 @@ public class List implements Parcelable {
 
 
     public List(Parcel in){
-        mId = in.readLong();
+        mId = in.readString();
         mName = in.readString();
         mCreationDate = in.readLong();
         mColor = in.readInt();
@@ -45,7 +45,7 @@ public class List implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeLong(mId);
+        parcel.writeString(mId);
         parcel.writeString(mName);
         parcel.writeLong(mCreationDate);
         parcel.writeInt(mColor);
@@ -54,7 +54,7 @@ public class List implements Parcelable {
     }
 
     // If try to fetch list from database, you have to use this constructer.
-    public List(long id, String name, long creationDate, int color, int taskCount, java.util.List<Task> tasks) {
+    public List(String id, String name, long creationDate, int color, int taskCount, java.util.List<Task> tasks) {
         mId = id;
         mName = name;
         mCreationDate = creationDate;
@@ -65,7 +65,7 @@ public class List implements Parcelable {
 
     // When user creates new list without
     public List(String name, int color){
-        mId = ListUtil.generateUniqueId();
+        mId = UUID.randomUUID().toString();
         mName = name;
         mCreationDate = System.currentTimeMillis();
         mColor = color;
@@ -75,10 +75,10 @@ public class List implements Parcelable {
 
     public void addTask(Task task){
         mTasks.add(task);
-        mTaskCount++;
+        mTaskCount = mTasks.size();
     }
 
-    public long getId() {
+    public String getId() {
         return mId;
     }
 

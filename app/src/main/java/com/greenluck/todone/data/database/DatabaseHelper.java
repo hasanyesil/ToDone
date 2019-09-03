@@ -84,8 +84,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long addList(List list){
         ContentValues cv = ListUtil.toContentValues(list);
         Log.i("DATABASE", "addList: Added " + cv.getAsLong(COLUMN_ID_1) + " " + cv.getAsString(COLUMN_NAME_1)+ " " + cv.getAsInteger(COLUMN_TASK_COUNT_1));
+        java.util.List<Task> tasks = list.getTasks();
         if (list.getTaskCount() > 0)
-            for (Task task : list.getTasks()){
+            for (Task task : tasks){
                 Log.i("DATABASE", "addList: list have this task : " + task.getContent() + " parent list id => " + task.getParentListId() );
                 addTask(task);
             }

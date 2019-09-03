@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,7 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventList
 
 import java.util.Calendar;
 
-public class TaskListFragment extends Fragment implements AdapterTask.CheckListener {
+public class TaskListFragment extends Fragment {
 
     private LinearLayout mListInfoLayout;
     private ImageButton mListColorImageButton;
@@ -80,7 +81,14 @@ public class TaskListFragment extends Fragment implements AdapterTask.CheckListe
         View v = inflater.inflate(R.layout.fragment_task_list,container,false);
 
         //Get clicked list.
+        //Todo : Only mTasks passed by referance when list calling from bundle object. Have to send new list to main activity then save to database.
         mList = getArguments().getParcelable("list");
+
+        //Todo: Remove debug logs
+        java.util.List<Task> mTasks = mList.getTasks();
+        for (Task task : mTasks){
+            Log.i("LIST_FROM_TASKLIST", "Content = " + task.getContent() + "Status = " + String.valueOf(task.getStatus()));
+        }
 
         mListInfoLayout = (LinearLayout) v.findViewById(R.id.list_info_linear_layout);
         mTaskProgressBar = (ProgressBar) v.findViewById(R.id.tasklist_task_progressbar);
@@ -99,6 +107,7 @@ public class TaskListFragment extends Fragment implements AdapterTask.CheckListe
         mTaskToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 mOnNavigationButtonClickListener.onNavigationPressed();
             }
         });
@@ -162,7 +171,7 @@ public class TaskListFragment extends Fragment implements AdapterTask.CheckListe
             }
         });
 
-
+        // Show date picker
         mSetReminderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -215,7 +224,16 @@ public class TaskListFragment extends Fragment implements AdapterTask.CheckListe
 
 
         //Set recyclerview and adapter.
-        mTaskAdapter = new AdapterTask(mList.getTasks(),getContext(),this);
+        mTaskAdapter = new AdapterTask(mList.getTasks(), getContext(), new AdapterTask.CheckListener() {
+            @Override
+            public void onCheck(boolean isChecked) {
+                if (isChecked){
+                    mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() + 1);
+                }else{
+                    mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() - 1);
+                }
+            }
+        });
         mTaskRecyclerView = v.findViewById(R.id.task_list_recyclerview);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mTaskRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         dividerItemDecoration.setDrawable(getContext().getDrawable(R.drawable.divider));
@@ -252,15 +270,5 @@ public class TaskListFragment extends Fragment implements AdapterTask.CheckListe
         mTaskProgressBar.setMax(mList.getTaskCount());
     }
 
-
-
-    @Override
-    public void onCheck(boolean isChecked) {
-        if (isChecked){
-            mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() + 1);
-        }else{
-            mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() - 1);
-        }
-    }
 
 }

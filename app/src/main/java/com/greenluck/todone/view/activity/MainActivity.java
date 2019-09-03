@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         mLists = mDatabaseHelper.getLists();
 
         mMainFragment = getSupportFragmentManager().findFragmentByTag("ListFragment");
+        //Control if fragment exist on memory (Rotation)
         if (mMainFragment == null) {
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList("Lists", mLists);
@@ -48,6 +49,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         mTaskFragment = new TaskListFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("list",list);
+        // Todo : Delete log
+        java.util.List<Task> tasks = list.getTasks();
+        for (Task task : tasks){
+            Log.i("LIST_FROM_MAIN", "Content = " + task.getContent() + "Status = " + String.valueOf(task.getStatus()));
+        }
         mTaskFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,mTaskFragment)
@@ -69,9 +75,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         for (List list : mLists){
             mDatabaseHelper.addList(list);
             Log.i("ListFromMainActivity", "onStop: Task count => " + list.getTaskCount());
-            for (Task task : list.getTasks()) {
-                Log.i("ListFromMainActivity", "onStop: List name => " + list.getName());
-                Log.i("ListFromMainActivity", "onStop: Task under list => " + task.getContent() + " status : " + task.getStatus());
+            java.util.List<Task> tasks = list.getTasks();
+            for (Task task : tasks) {
+                Log.i("LIST_FROM_STOP", "onStop: Task under list => " + task.getContent() + " status : " + task.getStatus());
             }
         }
         super.onStop();

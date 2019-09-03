@@ -37,8 +37,18 @@ public class AdapterList extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         ((ListHolder) holder).bindList(mLists.get(position),mContext);
+
+        holder.itemView.setOnClickListener(null);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                List list = mLists.get(position);
+                mListClickListener.showTasks(list);
+            }
+        });
     }
 
     @Override
@@ -55,14 +65,6 @@ public class AdapterList extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             super(itemView);
             listNameTextView = itemView.findViewById(R.id.list_name_textview);
             listColorImageButton = itemView.findViewById(R.id.list_color_imagebutton);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    List list = mLists.get(getAdapterPosition());
-                    mListClickListener.showTasks(list);
-                }
-            });
         }
 
         public void bindList(List list, Context context){

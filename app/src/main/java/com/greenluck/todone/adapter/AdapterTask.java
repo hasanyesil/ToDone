@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.greenluck.todone.R;
 import com.greenluck.todone.model.Task;
+import com.greenluck.todone.util.ListUtil;
+import com.greenluck.todone.util.TaskUtil;
 import com.greenluck.todone.util.TimeUtil;
 
 
@@ -43,8 +45,40 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TaskHolder holder, int position) {
-        holder.bindView(mTasks.get(position),mContext);
+    public void onBindViewHolder(@NonNull final TaskHolder holder, final int position) {
+
+        final Task task = mTasks.get(position);
+
+        holder.mTaskCheckBox.setOnCheckedChangeListener(null);
+        holder.mTaskCheckBox.setText(task.getContent());
+
+        if (task.getDueTime() != 0){
+            holder.mTaskDueTimeTextView.setText(TimeUtil.getReadableTime(task.getDueTime()));
+        }
+
+        if (task.getStatus() == 1){
+            holder.mTaskCheckBox.setChecked(true);
+            holder.mTaskCheckBox.setPaintFlags(holder.mTaskCheckBox.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }else{
+            holder.mTaskCheckBox.setChecked(false);
+            holder.mTaskCheckBox.setPaintFlags(holder.mTaskCheckBox.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG));
+        }
+
+        holder.mTaskCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+                    task.setStatus(1);
+                    holder.mTaskCheckBox.setPaintFlags(holder.mTaskCheckBox.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    mCheckListener.onCheck(true);
+                }else{
+                    task.setStatus(0);
+                    holder.mTaskCheckBox.setPaintFlags(holder.mTaskCheckBox.getPaintFlags() & (~ Paint.STRIKE_THRU_TEXT_FLAG) );
+                    mCheckListener.onCheck(false);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -61,39 +95,7 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
             super(itemView);
             mTaskDueTimeTextView = (TextView) itemView.findViewById(R.id.task_time_textview);
             mTaskCheckBox = (CheckBox) itemView.findViewById(R.id.task_check_box);
-            mTaskCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    if (b){
-                        mTaskCheckBox.setTextColor(mContext.getResources().getColor(R.color.hintcolor));
-                        mTaskCheckBox.setPaintFlags(mTaskCheckBox.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                        mTasks.get(getAdapterPosition()).setStatus(1);
-                        mCheckListener.onCheck(true);
-                    }else {
-                        mTaskCheckBox.setTextColor(mContext.getResources().getColor(R.color.black87));
-                        mTaskCheckBox.setPaintFlags(mTaskCheckBox.getPaintFlags() ^ Paint.STRIKE_THRU_TEXT_FLAG);
-                        mTasks.get(getAdapterPosition()).setStatus(0);
-                        mCheckListener.onCheck(false);
-                    }
-                }
-            });
         }
 
-        public void bindView(Task task,Context context){
-            mTaskCheckBox.setText(task.getContent());
-            if (task.getDueTime() == 0){
-                mTaskDueTimeTextView.setVisibility(View.GONE);
-            }else{
-                mTaskDueTimeTextView.setText(TimeUtil.getReadableTime(task.getDueTime()));
-            }
-            if (task.getStatus() == 1){
-                mTaskCheckBox.setChecked(true);
-                mTaskCheckBox.setTextColor(context.getResources().getColor(R.color.hintcolor));
-                mTaskCheckBox.setPaintFlags(mTaskCheckBox.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            }else{
-                mTaskCheckBox.setChecked(false);
-                mTaskCheckBox.setTextColor(context.getResources().getColor(R.color.black87));
-            }
-        }
     }
 }

@@ -50,10 +50,11 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
         holder.mTaskCheckBox.setOnCheckedChangeListener(null);
         holder.mTaskContent.setText(task.getContent());
 
+        //Show task date
         if (task.getDueTime() != 0){
             holder.mTaskDueTimeTextView.setText(TimeUtil.getReadableTime(task.getDueTime()));
         }else{
-            holder.mTaskDueTimeTextView.setText("");
+            holder.mTaskDueTimeTextView.setText(null);
         }
 
         if (task.getStatus() == 1){
@@ -99,7 +100,7 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
             mTaskContent = (TextView) itemView.findViewById(R.id.task_content_textview);
-            mTaskDueTimeTextView = (TextView) itemView.findViewById(R.id.task_time_textview);
+            mTaskDueTimeTextView = (TextView) itemView.findViewById(R.id.task_date_textview);
             mTaskCheckBox = (CheckBox) itemView.findViewById(R.id.task_check_box);
         }
 

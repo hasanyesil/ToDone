@@ -5,36 +5,39 @@ import android.os.Parcelable;
 
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class List implements Parcelable {
+public class TaskList implements Parcelable {
 
     private String mId;
     private String mName;
     private long mCreationDate;
     private int mColor;
     private int mTaskCount;
-    private java.util.List<Task> mTasks;
+    private int mComplatedTaskCount;
+    private List<Task> mTasks;
 
 
-    public List(Parcel in){
+    public TaskList(Parcel in){
         mId = in.readString();
         mName = in.readString();
         mCreationDate = in.readLong();
         mColor = in.readInt();
         mTaskCount = in.readInt();
+        mComplatedTaskCount = in.readInt();
         mTasks = in.createTypedArrayList(Task.CREATOR);
     }
 
-    public static final Creator<List> CREATOR = new Creator<List>() {
+    public static final Creator<TaskList> CREATOR = new Creator<TaskList>() {
         @Override
-        public List createFromParcel(Parcel in) {
-            return new List(in);
+        public TaskList createFromParcel(Parcel in) {
+            return new TaskList(in);
         }
 
         @Override
-        public List[] newArray(int size) {
-            return new List[size];
+        public TaskList[] newArray(int size) {
+            return new TaskList[size];
         }
     };
 
@@ -50,30 +53,34 @@ public class List implements Parcelable {
         parcel.writeLong(mCreationDate);
         parcel.writeInt(mColor);
         parcel.writeInt(mTaskCount);
+        parcel.writeInt(mComplatedTaskCount);
         parcel.writeTypedList(mTasks);
     }
 
     // If try to fetch list from database, you have to use this constructer.
-    public List(String id, String name, long creationDate, int color, int taskCount, java.util.List<Task> tasks) {
+    public TaskList(String id, String name, long creationDate, int color, int taskCount, int complatedTaskCount) {
         mId = id;
         mName = name;
         mCreationDate = creationDate;
         mColor = color;
         mTaskCount = taskCount;
-        mTasks = tasks;
+        mComplatedTaskCount = complatedTaskCount;
     }
 
-    // When user creates new list without
-    public List(String name, int color){
+    // When user creates new list
+    public TaskList(String name, int color){
         mId = UUID.randomUUID().toString();
         mName = name;
         mCreationDate = System.currentTimeMillis();
         mColor = color;
         mTaskCount = 0;
-        mTasks = new ArrayList<>();
+        mComplatedTaskCount = 0;
     }
 
+
     public void addTask(Task task){
+        if (mTasks == null)
+            mTasks = new ArrayList<>();
         mTasks.add(task);
         mTaskCount = mTasks.size();
     }
@@ -107,11 +114,14 @@ public class List implements Parcelable {
     }
 
     public int getTaskCount() {
-        return mTasks.size();
+        return mTaskCount;
     }
 
     public int getComplatedTaskCount(){
         int count = 0;
+        if (mTasks == null)
+            return count;
+
         for (Task task : mTasks){
             if (task.getStatus() == 1){
                 count++;

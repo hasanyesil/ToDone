@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.greenluck.todone.model.List;
 import com.greenluck.todone.model.Task;
+import com.greenluck.todone.model.TaskList;
 import com.greenluck.todone.util.ListUtil;
 import com.greenluck.todone.util.TaskUtil;
 
@@ -27,6 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_CREATION_DATE_1 = "date";
     public static final String COLUMN_COLOR_1 = "color";
     public static final String COLUMN_TASK_COUNT_1 = "count";
+    public static final String COLUMN_COMPLATED_TASK_COUNT_1 = "complated_task_count";
 
     //Task table
     private static final String TABLE_NAME_2 = "tasks";
@@ -60,7 +61,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_NAME_1 + " TEXT, " +
                 COLUMN_CREATION_DATE_1 + " TEXT, " +
                 COLUMN_COLOR_1 + " TEXT, " +
-                COLUMN_TASK_COUNT_1 + " INTEGER " + ");";
+                COLUMN_TASK_COUNT_1 + " INTEGER, " +
+                COLUMN_COMPLATED_TASK_COUNT_1 + " INTEGER " + ");";
 
         sqLiteDatabase.execSQL(CREATE_LISTS_TABLE);
 
@@ -81,29 +83,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public long addList(List list){
+    public long addList(TaskList list){
         ContentValues cv = ListUtil.toContentValues(list);
-        Log.i("DATABASE", "addList: Added " + cv.getAsString(COLUMN_ID_1) + " " + cv.getAsString(COLUMN_NAME_1)+ " " + cv.getAsInteger(COLUMN_TASK_COUNT_1));
-        java.util.List<Task> tasks = list.getTasks();
-        if (list.getTaskCount() > 0)
-            for (Task task : tasks){
-                Log.i("DATABASE", "addList: list have this task : " + task.getContent() + " parent list id => " + task.getParentListId() );
-                addTask(task);
-            }
+        Log.i("DATABASE", "addList: Added " + cv.getAsString(COLUMN_ID_1) + " " + cv.getAsString(COLUMN_NAME_1)+ " " + cv.getAsInteger(COLUMN_TASK_COUNT_1) + " " + cv.getAsInteger(COLUMN_COMPLATED_TASK_COUNT_1));
+
         return getWritableDatabase().insert(TABLE_NAME_1,null,cv);
     }
 
-    public ArrayList<List> getLists(){
+    public ArrayList<TaskList> getLists(){
         Cursor listCursor = null;
+        String[] columns  = new String[]{COLUMN_ID_1,COLUMN_NAME_1,COLUMN_CREATION_DATE_1,COLUMN_COLOR_1,COLUMN_TASK_COUNT_1,COLUMN_COMPLATED_TASK_COUNT_1};
         try{
-            listCursor = getReadableDatabase().query(TABLE_NAME_1,null,null,null,null,null,null);
-            return ListUtil.buildLists(listCursor,this);
+            listCursor = getReadableDatabase().query(TABLE_NAME_1,columns,null,null,null,null,null);
+            return ListUtil.buildLists(listCursor);
         }finally {
             if (listCursor!=null && !listCursor.isClosed()) listCursor.close();
         }
     }
 
-    public int updateList(List list){
+    public int updateList(TaskList list){
         final String where = COLUMN_ID_1 + "=?";
         final String[] whereArgs = new String[]{list.getId()};
         ContentValues cv = ListUtil.toContentValues(list);
@@ -111,7 +109,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().update(TABLE_NAME_1,cv,where,whereArgs);
     }
 
-    public long addTask(Task task){
+    private long addTask(Task task){
         Log.i("DATABASE", "addTask: database e eklenecek task " + task.getContent() + " parent list id => " + task.getParentListId() );
         ContentValues cv = TaskUtil.toContentValues(task);
         return getWritableDatabase().insert(TABLE_NAME_2,null,cv);
@@ -128,6 +126,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
         }
     }
+
 
     public ArrayList<Task> getTasks(String listId){
         Cursor c = null;

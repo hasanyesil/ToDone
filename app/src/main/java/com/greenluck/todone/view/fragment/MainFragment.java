@@ -16,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.greenluck.todone.R;
 import com.greenluck.todone.adapter.AdapterList;
 import com.greenluck.todone.data.database.DatabaseHelper;
-import com.greenluck.todone.model.List;
+import com.greenluck.todone.model.TaskList;
+
+import java.util.List;
 
 public class MainFragment extends Fragment {
 
@@ -24,7 +26,7 @@ public class MainFragment extends Fragment {
     private AdapterList mListAdapter;
     private ImageButton mAddListButton;
     private OnListClickListener mListClickListener;
-    private java.util.List<List> mLists;
+    private List<TaskList> mLists;
     private DatabaseHelper mDatabaseHelper;
 
     @Override
@@ -62,14 +64,14 @@ public class MainFragment extends Fragment {
     }
 
     public interface OnListClickListener{
-        void showTasks(List list);
+        void showTasks(TaskList list);
     }
 
     public void updateAdapter(){
         mListAdapter.notifyItemInserted(mLists.size());
     }
 
-    public java.util.List<List> getLists(){
+    public List<TaskList> getLists(){
         return mLists;
     }
 }

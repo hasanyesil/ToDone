@@ -8,21 +8,24 @@ import android.util.Log;
 
 import com.greenluck.todone.R;
 import com.greenluck.todone.data.database.DatabaseHelper;
-import com.greenluck.todone.model.List;
 import com.greenluck.todone.model.Task;
+import com.greenluck.todone.model.TaskList;
 import com.greenluck.todone.view.fragment.AddListDialogFragment;
 import com.greenluck.todone.view.fragment.MainFragment;
+import com.greenluck.todone.view.fragment.TaskDetailFragment;
 import com.greenluck.todone.view.fragment.TaskListFragment;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnListClickListener, AddListDialogFragment.OnAddListDialogResultListener, TaskListFragment.OnNavigationButtonClickListener {
+
+public class MainActivity extends AppCompatActivity implements MainFragment.OnListClickListener, AddListDialogFragment.OnAddListDialogResultListener, TaskListFragment.OnNavigationButtonClickListener, TaskListFragment.TaskClickListener, TaskDetailFragment.OnDetailFragmentNavigation, TaskDetailFragment.OnDeleteTask{
 
     Fragment mMainFragment;
     Fragment mTaskFragment;
+    Fragment mTaskDetailFragment;
     private DatabaseHelper mDatabaseHelper;
-    private ArrayList<List> mLists;
-    private ArrayList<List> mOldLists;
+    private ArrayList<TaskList> mLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,8 +34,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
         mDatabaseHelper = DatabaseHelper.getInstance(this);
         mLists = mDatabaseHelper.getLists();
-        mOldLists = (ArrayList<List>) mLists.clone();
-
 
         mMainFragment = getSupportFragmentManager().findFragmentByTag("ListFragment");
         //Control if fragment exist on memory (Rotation)
@@ -48,15 +49,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
     }
 
     @Override
-    public void showTasks(List list) {
+    public void showTasks(TaskList list) {
         mTaskFragment = new TaskListFragment();
         Bundle bundle = new Bundle();
         bundle.putParcelable("list",list);
-        // Todo : Delete log
-        java.util.List<Task> tasks = list.getTasks();
-        for (Task task : tasks){
-            Log.i("LIST_FROM_MAIN", "Content = " + task.getContent() + "Status = " + String.valueOf(task.getStatus()));
-        }
+
         mTaskFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,mTaskFragment)
@@ -66,24 +63,32 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
     }
 
     @Override
-    public void getCreatedList(List list) {
+    public void getCreatedList(TaskList list) {
         if (mMainFragment != null){
             mLists.add(list);
             ((MainFragment) mMainFragment).updateAdapter();
+            mDatabaseHelper.addList(list);
         }
     }
 
     @Override
     protected void onStop() {
-        boolean isUpdated = false;
-        for (List list : mLists){
-            for (List oldList : mOldLists){
+        super.onStop();
+        /*boolean isUpdated = false;
+
+        //Compare old list and new list.
+        for (TaskList list : mLists){
+            for (TaskList oldList : mOldLists){
+
+                //If new list did not created, only updated.
                 if (list.getId().equals(oldList.getId())) {
                     mDatabaseHelper.updateList(list);
                     isUpdated = true;
                     break;
                 }
             }
+
+            // If new list created and need to add database.
             if (!isUpdated){
                 mDatabaseHelper.addList(list);
                 Log.i("ListFromMainActivity", "onStop: Task count => " + list.getTaskCount());
@@ -95,13 +100,57 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
             isUpdated = false;
         }
-        super.onStop();
+        super.onStop();*/
+    }
+
+    //When navigation clicked on task list fragment. Return main fragment.
+    @Override
+    public void onNavigationPressed(TaskList updatedList) {
+        if (mTaskFragment != null){
+            mDatabaseHelper.updateList(updatedList);
+            getSupportFragmentManager().popBackStack();
+        }
+    }
+
+    //When user pressed task, show task detail fragment.
+    @Override
+    public void onTaskClick(Task task, String listName) {
+        mTaskDetailFragment = getSupportFragmentManager().findFragmentByTag("TaskDetailFragment");
+        if (mTaskDetailFragment == null){
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("Task",task);
+            bundle.putString("Listname",listName);
+            mTaskDetailFragment = new TaskDetailFragment();
+            mTaskDetailFragment.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container,mTaskDetailFragment,"TaskDetailFragment")
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 
     @Override
-    public void onNavigationPressed() {
-        if (mTaskFragment != null){
+    public void onDetailNavigationClick() {
+        if (mTaskDetailFragment != null){
             getSupportFragmentManager().popBackStack();
         }
+    }
+
+    @Override
+    public void deleteTask(Task task) {
+        for (TaskList list : mLists){
+            if (list.getId().equals(task.getParentListId())){
+                list.getTasks().remove(task);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mTaskFragment.isVisible()){
+
+        }
+        super.onBackPressed();
     }
 }

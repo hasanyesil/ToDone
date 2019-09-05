@@ -26,20 +26,21 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.greenluck.todone.R;
 import com.greenluck.todone.adapter.AdapterTask;
-import com.greenluck.todone.model.List;
+import com.greenluck.todone.data.database.DatabaseHelper;
 import com.greenluck.todone.model.Task;
-import com.greenluck.todone.util.ListUtil;
+import com.greenluck.todone.model.TaskList;
 import com.greenluck.todone.util.TimeUtil;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class TaskListFragment extends Fragment {
 
@@ -57,20 +58,29 @@ public class TaskListFragment extends Fragment {
     private ImageButton mAddTaskButton;
     private Button mSetReminderButton;
     private long settedTime;
-    private List mList;
+    private TaskList mList;
+    private ArrayList<Task> mTasks;
+    private DatabaseHelper mDatabaseHelper;
 
     private OnNavigationButtonClickListener mOnNavigationButtonClickListener;
-
+    private TaskClickListener mTaskClickListener;
 
     public interface OnNavigationButtonClickListener{
-        void onNavigationPressed();
+        void onNavigationPressed(TaskList updatedList);
     }
 
+    public interface TaskClickListener{
+        void onTaskClick(Task task, String listName);
+    }
+
+
+    //Callbacks
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try{
             mOnNavigationButtonClickListener = (OnNavigationButtonClickListener) context;
+            mTaskClickListener = (TaskClickListener) context;
         }catch (ClassCastException e){
             e.printStackTrace();
         }
@@ -81,15 +91,17 @@ public class TaskListFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_task_list,container,false);
 
-        //Get clicked list.
-        //Todo : Only mTasks passed by referance when list calling from bundle object. Have to send new list to main activity then save to database.
-        mList = getArguments().getParcelable("list");
+        mDatabaseHelper = DatabaseHelper.getInstance(getContext());
 
-        //Todo: Remove debug logs
-        java.util.List<Task> mTasks = mList.getTasks();
-        for (Task task : mTasks){
-            Log.i("LIST_FROM_TASKLIST", "Content = " + task.getContent() + "Status = " + String.valueOf(task.getStatus()));
+        //Get list
+        mList = getArguments().getParcelable("list");
+        if (mList.getTaskCount() > 0){
+            mTasks = DatabaseHelper.getInstance(getContext()).getTasks(mList.getId());
+        }else{
+            mTasks = new ArrayList<>();
         }
+
+        mList.setTasks(mTasks);
 
         mListInfoLayout = (LinearLayout) v.findViewById(R.id.list_info_linear_layout);
         mTaskProgressBar = (ProgressBar) v.findViewById(R.id.tasklist_task_progressbar);
@@ -109,7 +121,7 @@ public class TaskListFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                mOnNavigationButtonClickListener.onNavigationPressed();
+                mOnNavigationButtonClickListener.onNavigationPressed(mList);
             }
         });
 
@@ -225,7 +237,7 @@ public class TaskListFragment extends Fragment {
 
 
         //Set recyclerview and adapter.
-        mTaskAdapter = new AdapterTask(mList.getTasks(), getContext(), new AdapterTask.CheckListener() {
+        mTaskAdapter = new AdapterTask(mTasks, getContext(), new AdapterTask.CheckListener() {
             @Override
             public void onCheck(boolean isChecked) {
                 if (isChecked){
@@ -234,7 +246,7 @@ public class TaskListFragment extends Fragment {
                     mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() - 1);
                 }
             }
-        });
+        },mTaskClickListener,mList.getName());
         mTaskRecyclerView = v.findViewById(R.id.task_list_recyclerview);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mTaskRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
         dividerItemDecoration.setDrawable(getContext().getDrawable(R.drawable.divider));
@@ -265,11 +277,15 @@ public class TaskListFragment extends Fragment {
             mTaskCountTextView.setText(getString(R.string.task_count_biggerthan1,mList.getTaskCount()));
         }
         mTaskNameEdittext.setText("");
-        mSetReminderButton.setText("Reminder");
+        mSetReminderButton.setText("Due Date");
         settedTime = 0;
         //Update progressbar
         mTaskProgressBar.setMax(mList.getTaskCount());
     }
 
-
+    @Override
+    public void onStop() {
+        mDatabaseHelper.updateList(mList);
+        super.onStop();
+    }
 }

@@ -20,9 +20,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.greenluck.todone.R;
-import com.greenluck.todone.model.List;
 import com.greenluck.todone.model.Task;
-import com.greenluck.todone.util.ListUtil;
+import com.greenluck.todone.model.TaskList;
+
 
 import java.util.ArrayList;
 
@@ -43,7 +43,7 @@ public class AddListDialogFragment extends DialogFragment implements View.OnClic
     private OnAddListDialogResultListener mListDialogResult;
 
     public interface OnAddListDialogResultListener {
-        void getCreatedList(List list);
+        void getCreatedList(TaskList list);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class AddListDialogFragment extends DialogFragment implements View.OnClic
                         String listName = mListNameEdittext.getText().toString();
                         if (!listName.equals("")){
                             java.util.List<Task> tasks = new ArrayList<>();
-                            List list = new List(listName,selectedColor);
+                            TaskList list = new TaskList(listName,selectedColor);
                             mListDialogResult.getCreatedList(list);
                         }
                     }

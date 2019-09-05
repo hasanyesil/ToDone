@@ -11,17 +11,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.greenluck.todone.R;
-import com.greenluck.todone.model.List;
+import com.greenluck.todone.model.TaskList;
 import com.greenluck.todone.view.fragment.MainFragment;
+
+import java.util.List;
 
 
 public class AdapterList extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private MainFragment.OnListClickListener mListClickListener;
-    private java.util.List<List> mLists;
+    private List<TaskList> mLists;
     public Context mContext;
 
-    public AdapterList(MainFragment.OnListClickListener clickListener, java.util.List<List> lists, Context context){
+    public AdapterList(MainFragment.OnListClickListener clickListener, List<TaskList> lists, Context context){
         mListClickListener = clickListener;
         mLists = lists;
         mContext = context;
@@ -45,7 +47,7 @@ public class AdapterList extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List list = mLists.get(position);
+                TaskList list = mLists.get(position);
                 mListClickListener.showTasks(list);
             }
         });
@@ -67,7 +69,7 @@ public class AdapterList extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             listColorImageButton = itemView.findViewById(R.id.list_color_imagebutton);
         }
 
-        public void bindList(List list, Context context){
+        public void bindList(TaskList list, Context context){
             listNameTextView.setText(list.getName());
             switch (list.getColor()){
                 case R.color.grade_gray:

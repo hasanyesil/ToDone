@@ -3,9 +3,7 @@ package com.greenluck.todone.view.fragment;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -100,6 +98,9 @@ public class TaskListFragment extends Fragment {
         //Get tasks under list.
         if (mList.getTaskCount() > 0){
             mTasks = DatabaseHelper.getInstance(getContext()).getTasks(mList.getId());
+            if (mTasks.size() == 0){
+                mList.setTaskCount(0);
+            }
         }else{
             mTasks = new ArrayList<>();
         }
@@ -269,7 +270,7 @@ public class TaskListFragment extends Fragment {
             @Override
             public void onCheck(boolean isChecked) {
                 if (isChecked){
-                    mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() + 1);
+                    mTaskProgressBar.setProgress(mList.getTaskCount());
                     mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
                 }else{
                     mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() - 1);

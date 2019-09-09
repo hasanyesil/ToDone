@@ -106,12 +106,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
     @Override
     public void deleteTask(Task task) {
-        for (TaskList list : mLists){
-            if (list.getId().equals(task.getParentListId())){
-                list.getTasks().remove(task);
-                break;
-            }
-        }
+        mDatabaseHelper.deleteTask(task);
+        getSupportFragmentManager().popBackStack();
     }
 
 

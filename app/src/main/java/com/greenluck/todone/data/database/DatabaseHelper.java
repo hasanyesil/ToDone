@@ -125,7 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public long deleteTask(Task task){
         final String where = COLUMN_ID_2 + "=?";
-        final String [] whereArgs = new String[]{task.getParentListId()};
+        final String [] whereArgs = new String[]{task.getId()};
         return getWritableDatabase().delete(TABLE_NAME_2,where,whereArgs);
     }
 

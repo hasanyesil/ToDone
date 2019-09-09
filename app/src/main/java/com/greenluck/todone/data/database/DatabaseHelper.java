@@ -13,6 +13,7 @@ import com.greenluck.todone.util.ListUtil;
 import com.greenluck.todone.util.TaskUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -90,6 +91,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().insert(TABLE_NAME_1,null,cv);
     }
 
+    public long deleteList(TaskList list){
+        deleteTask(list.getId());
+        String where = COLUMN_ID_1 + "=?";
+        String [] whereArgs = new String[]{list.getId()};
+        return getWritableDatabase().delete(TABLE_NAME_1,where,whereArgs);
+    }
+
     public ArrayList<TaskList> getLists(){
         Cursor listCursor = null;
         String[] columns  = new String[]{COLUMN_ID_1,COLUMN_NAME_1,COLUMN_CREATION_DATE_1,COLUMN_COLOR_1,COLUMN_TASK_COUNT_1,COLUMN_COMPLATED_TASK_COUNT_1};
@@ -115,8 +123,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return getWritableDatabase().insert(TABLE_NAME_2,null,cv);
     }
 
+    public long deleteTask(Task task){
+        final String where = COLUMN_ID_2 + "=?";
+        final String [] whereArgs = new String[]{task.getParentListId()};
+        return getWritableDatabase().delete(TABLE_NAME_2,where,whereArgs);
+    }
+
+    public long deleteTask(String parentId){
+        final String where = COLUMN_PARENT_LIST_ID_2 + "=?";
+        final String[] whereArgs = new String[]{parentId};
+        return getWritableDatabase().delete(TABLE_NAME_2,where,whereArgs);
+    }
+
     // Todo : Find efficient way to update tasks.
-    public void updateTask(java.util.List<Task> tasks){
+    public void updateTask(List<Task> tasks){
         for (Task task : tasks){
             final String where = COLUMN_ID_2 + "=?";
             final String[] whereArgs = new String[]{task.getId()};

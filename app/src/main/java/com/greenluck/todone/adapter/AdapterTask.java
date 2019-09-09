@@ -53,7 +53,19 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
         final Task task = mTasks.get(position);
 
         holder.mTaskCheckBox.setOnCheckedChangeListener(null);
+        holder.itemView.setOnClickListener(null);
         holder.mTaskContent.setText(task.getContent());
+
+
+        // Show task details
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view.getId() != R.id.task_check_box){
+                    mTaskClickListener.onTaskClick(task,mListName);
+                }
+            }
+        });
 
         //Show task date
         // Todo: show task's end time
@@ -94,15 +106,6 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
             }
         });
 
-        // Notify user clicks task to main activity.
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view.getId() != R.id.task_check_box){
-                    mTaskClickListener.onTaskClick(task,mListName);
-                }
-            }
-        });
 
     }
 

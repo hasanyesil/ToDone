@@ -12,13 +12,44 @@
         android:background="@android:color/transparent"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:navigationIcon="@drawable/back_icon" />
+        app:navigationIcon="@drawable/back_icon"
+        app:title="Test List"
+        app:titleTextColor="#DE000000" />
 
-    <CheckBox
-        android:id="@+id/checkBox"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="image"
-        android:button="@drawable/custom_checkbox_bigger" />
+        android:layout_marginStart="18dp"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/task_detail_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:button="@drawable/custom_checkbox_bigger" />
+
+        <EditText
+            android:id="@+id/task_content_edt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:ems="10"
+            android:fontFamily="@font/roboto_medium"
+            android:inputType="textMultiLine"
+            android:maxLength="100"
+            android:singleLine="false"
+            android:text="Name"
+            android:textColor="#DE000000"
+            android:textSize="30sp" />
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

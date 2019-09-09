@@ -25,6 +25,7 @@ import com.greenluck.todone.model.TaskList;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AddListDialogFragment extends DialogFragment implements View.OnClickListener {
 
@@ -81,7 +82,6 @@ public class AddListDialogFragment extends DialogFragment implements View.OnClic
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String listName = mListNameEdittext.getText().toString();
                         if (!listName.equals("")){
-                            java.util.List<Task> tasks = new ArrayList<>();
                             TaskList list = new TaskList(listName,selectedColor);
                             mListDialogResult.getCreatedList(list);
                         }

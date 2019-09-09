@@ -4,22 +4,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import com.greenluck.todone.R;
 import com.greenluck.todone.data.database.DatabaseHelper;
 import com.greenluck.todone.model.Task;
 import com.greenluck.todone.model.TaskList;
 import com.greenluck.todone.view.fragment.AddListDialogFragment;
+import com.greenluck.todone.view.fragment.DeleteListDialogFragment;
 import com.greenluck.todone.view.fragment.MainFragment;
 import com.greenluck.todone.view.fragment.TaskDetailFragment;
 import com.greenluck.todone.view.fragment.TaskListFragment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements MainFragment.OnListClickListener, AddListDialogFragment.OnAddListDialogResultListener, TaskListFragment.OnNavigationButtonClickListener, TaskListFragment.TaskClickListener, TaskDetailFragment.OnDetailFragmentNavigation, TaskDetailFragment.OnDeleteTask{
+public class MainActivity extends AppCompatActivity implements MainFragment.OnListClickListener, AddListDialogFragment.OnAddListDialogResultListener, TaskListFragment.OnNavigationButtonClickListener, TaskListFragment.TaskClickListener, TaskDetailFragment.OnDetailFragmentNavigation, TaskDetailFragment.OnDeleteTask, DeleteListDialogFragment.OnListDeletedListener {
 
     Fragment mMainFragment;
     Fragment mTaskFragment;
@@ -56,12 +55,13 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
         mTaskFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container,mTaskFragment)
+                .replace(R.id.fragment_container,mTaskFragment,"TaskListFragment")
                 .addToBackStack(null)
                 .commit();
 
     }
 
+    //Save list to db when list created.
     @Override
     public void getCreatedList(TaskList list) {
         if (mMainFragment != null){
@@ -69,38 +69,6 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
             ((MainFragment) mMainFragment).updateAdapter();
             mDatabaseHelper.addList(list);
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        /*boolean isUpdated = false;
-
-        //Compare old list and new list.
-        for (TaskList list : mLists){
-            for (TaskList oldList : mOldLists){
-
-                //If new list did not created, only updated.
-                if (list.getId().equals(oldList.getId())) {
-                    mDatabaseHelper.updateList(list);
-                    isUpdated = true;
-                    break;
-                }
-            }
-
-            // If new list created and need to add database.
-            if (!isUpdated){
-                mDatabaseHelper.addList(list);
-                Log.i("ListFromMainActivity", "onStop: Task count => " + list.getTaskCount());
-                java.util.List<Task> tasks = list.getTasks();
-                for (Task task : tasks) {
-                    Log.i("LIST_FROM_STOP", "onStop: Task under list => " + task.getContent() + " status : " + task.getStatus());
-                }
-            }
-
-            isUpdated = false;
-        }
-        super.onStop();*/
     }
 
     //When navigation clicked on task list fragment. Return main fragment.
@@ -146,11 +114,13 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mTaskFragment.isVisible()){
 
-        }
-        super.onBackPressed();
+    @Override
+    public void onListDeleted(TaskList list) {
+        mDatabaseHelper.deleteList(list);
+        mLists.remove(list);
+
+        getSupportFragmentManager().popBackStack();
+
     }
 }

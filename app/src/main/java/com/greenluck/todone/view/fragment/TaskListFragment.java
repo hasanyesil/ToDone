@@ -3,10 +3,12 @@ package com.greenluck.todone.view.fragment;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -40,7 +42,6 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventList
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class TaskListFragment extends Fragment {
 
@@ -58,12 +59,14 @@ public class TaskListFragment extends Fragment {
     private ImageButton mAddTaskButton;
     private Button mSetReminderButton;
     private long settedTime;
+
     private TaskList mList;
     private ArrayList<Task> mTasks;
     private DatabaseHelper mDatabaseHelper;
 
     private OnNavigationButtonClickListener mOnNavigationButtonClickListener;
     private TaskClickListener mTaskClickListener;
+
 
     public interface OnNavigationButtonClickListener{
         void onNavigationPressed(TaskList updatedList);
@@ -74,7 +77,6 @@ public class TaskListFragment extends Fragment {
     }
 
 
-    //Callbacks
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -93,8 +95,9 @@ public class TaskListFragment extends Fragment {
 
         mDatabaseHelper = DatabaseHelper.getInstance(getContext());
 
-        //Get list
         mList = getArguments().getParcelable("list");
+
+        //Get tasks under list.
         if (mList.getTaskCount() > 0){
             mTasks = DatabaseHelper.getInstance(getContext()).getTasks(mList.getId());
         }else{
@@ -115,8 +118,25 @@ public class TaskListFragment extends Fragment {
         mAddTaskButton = (ImageButton) v.findViewById(R.id.add_task_image_button);
         mSetReminderButton = (Button) v.findViewById(R.id.set_reminder_button);
 
-        //Set navigation button
+        //Set toolbar.
+        mTaskToolbar.inflateMenu(R.menu.menu_task_detail);
+        mTaskToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.delete_button){
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelable("list",mList);
+                    DeleteListDialogFragment fragment = new DeleteListDialogFragment();
+                    fragment.setArguments(bundle);
+                    fragment.show(getActivity().getSupportFragmentManager(),"delete_list");
+                    return true;
+                }
+                return false;
+            }
+        });
         mTaskToolbar.setNavigationIcon(R.drawable.back_icon);
+        mTaskToolbar.setTitle(mList.getName());
+        mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
         mTaskToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,33 +145,41 @@ public class TaskListFragment extends Fragment {
             }
         });
 
+
         //Set progressbar.
         mTaskProgressBar.setMax(mList.getTaskCount());
         mTaskProgressBar.setProgress(mList.getComplatedTaskCount());
 
+        //Todo : Write easy to read code again.
         //Show list info (Color,Task count,Complated tasks)
         switch (mList.getColor()){
             case R.color.grade_gray:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.grade_gray), PorterDuff.Mode.SRC_IN);
                 mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_grade_grey));
+                mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.grade_gray));
                 break;
             case R.color.deep_orange:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.deep_orange), PorterDuff.Mode.SRC_IN);
                 mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_deep_orange));
+                mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.deep_orange));
                 break;
             case R.color.evening_sunshine:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.evening_sunshine), PorterDuff.Mode.SRC_IN);
                 mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_evening_sunshine));
+                mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.evening_sunshine));
                 break;
             case R.color.jade:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.jade), PorterDuff.Mode.SRC_IN);
                 mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_jade));
+                mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.jade));
                 break;
             case R.color.pinky_pink:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.pinky_pink), PorterDuff.Mode.SRC_IN);
                 mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_pinky_pink));
+                mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.pinky_pink));
                 break;
         }
+
         mListNameTextView.setText(mList.getName());
         if (mList.getTaskCount() <= 1){            String taskCount = getString(R.string.task_count_equal_smalllerthan1,mList.getTaskCount());
             mTaskCountTextView.setText(taskCount);
@@ -242,8 +270,10 @@ public class TaskListFragment extends Fragment {
             public void onCheck(boolean isChecked) {
                 if (isChecked){
                     mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() + 1);
+                    mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
                 }else{
                     mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() - 1);
+                    mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
                 }
             }
         },mTaskClickListener,mList.getName());
@@ -269,6 +299,7 @@ public class TaskListFragment extends Fragment {
 
     private void addNewTask(Task task){
         mList.addTask(task);
+        mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
         mTaskAdapter.notifyItemInserted(mList.getTaskCount() - 1);
         mTaskRecyclerView.scrollToPosition(mList.getTaskCount() - 1);
         if (mList.getTaskCount() <= 1){
@@ -282,6 +313,7 @@ public class TaskListFragment extends Fragment {
         //Update progressbar
         mTaskProgressBar.setMax(mList.getTaskCount());
     }
+
 
     @Override
     public void onStop() {

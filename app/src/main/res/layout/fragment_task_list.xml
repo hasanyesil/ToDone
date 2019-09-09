@@ -3,15 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    
+
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/task_list_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
         android:minHeight="?attr/actionBarSize"
-        android:theme="?attr/actionBarTheme"
-        app:navigationIcon="@drawable/back_icon" />
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:navigationIcon="@drawable/back_icon"
+        app:subtitle="5/10 tasks"
+        app:title="Home" />
 
     <LinearLayout
         android:id="@+id/list_info_linear_layout"
@@ -110,7 +112,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:cardElevation="4dp">
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -138,7 +141,8 @@
                     android:hint="Add task"
                     android:inputType="textPersonName"
                     android:lines="1"
-                    android:singleLine="true" />
+                    android:singleLine="true"
+                    android:textCursorDrawable="@drawable/custom_cursor" />
 
                 <ImageButton
                     android:id="@+id/add_task_image_button"

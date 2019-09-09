@@ -2,4 +2,6 @@
     <string name="app_name">ToDone</string>
     <string name="task_count_biggerthan1">%1$d tasks</string>
     <string name="task_count_equal_smalllerthan1">%1$d task</string>
+    <string name="task_count">%1$d/%2$d tasks</string>
+    <string name="delete_list">%1$s will be permanently deleted.</string>
 </resources>

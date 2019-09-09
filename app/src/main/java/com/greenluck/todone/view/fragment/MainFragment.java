@@ -29,6 +29,10 @@ public class MainFragment extends Fragment {
     private List<TaskList> mLists;
     private DatabaseHelper mDatabaseHelper;
 
+    public interface OnListClickListener{
+        void showTasks(TaskList list);
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -63,9 +67,6 @@ public class MainFragment extends Fragment {
         return v;
     }
 
-    public interface OnListClickListener{
-        void showTasks(TaskList list);
-    }
 
     public void updateAdapter(){
         mListAdapter.notifyItemInserted(mLists.size());

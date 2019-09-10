@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.greenluck.todone.R;
+import com.greenluck.todone.interfaces.ItemTouchHelperViewHolder;
 import com.greenluck.todone.model.Task;
 import com.greenluck.todone.util.TimeUtil;
 import com.greenluck.todone.view.fragment.TaskListFragment;
@@ -114,20 +115,33 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
         return mTasks.size();
     }
 
-    public class TaskHolder extends RecyclerView.ViewHolder{
+    public class TaskHolder extends RecyclerView.ViewHolder implements ItemTouchHelperViewHolder {
 
         private CheckBox mTaskCheckBox;
         private TextView mTaskDueTimeTextView;
         private TextView mTaskContent;
-        private TextView mTaskTimeTextview;
+        private View mDivider;
+
 
         public TaskHolder(@NonNull View itemView) {
             super(itemView);
-            mTaskTimeTextview = (TextView) itemView.findViewById(R.id.task_time_textview);
             mTaskContent = (TextView) itemView.findViewById(R.id.task_content_edt);
             mTaskDueTimeTextView = (TextView) itemView.findViewById(R.id.task_date_textview);
             mTaskCheckBox = (CheckBox) itemView.findViewById(R.id.task_check_box);
+            mDivider = (View) itemView.findViewById(R.id.divider);
         }
 
+        @Override
+        public void onItemSelected() {
+            itemView.setBackground(mContext.getDrawable(R.drawable.viewholder_border));
+            itemView.setTranslationZ(7);
+            mDivider.setVisibility(View.GONE);
+        }
+
+        @Override
+        public void onItemClear() {
+            mDivider.setVisibility(View.VISIBLE);
+            itemView.setBackgroundResource(0);
+        }
     }
 }

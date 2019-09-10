@@ -74,10 +74,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
     //When navigation clicked on task list fragment. Return main fragment.
     @Override
     public void onNavigationPressed(TaskList updatedList) {
-        if (mTaskFragment != null){
-            mDatabaseHelper.updateList(updatedList);
-            getSupportFragmentManager().popBackStack();
-        }
+        mDatabaseHelper.updateList(updatedList);
+        getSupportFragmentManager().popBackStack();
     }
 
     //When user pressed task, show task detail fragment.
@@ -106,6 +104,14 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
 
     @Override
     public void deleteTask(Task task) {
+        for (TaskList list : mLists){
+            if (list.getId().equals(task.getParentListId())){
+                list.setTaskCount(list.getTaskCount() - 1);
+                if (task.getStatus() == 1){
+                    list.setComplatedTaskCount(list.getComplatedTaskCount() - 1);
+                }
+            }
+        }
         mDatabaseHelper.deleteTask(task);
         getSupportFragmentManager().popBackStack();
     }

@@ -46,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
     }
 
-    public static synchronized DatabaseHelper getInstance(Context context) {
+    public static DatabaseHelper getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new DatabaseHelper(context.getApplicationContext());
         }
@@ -113,7 +113,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         final String where = COLUMN_ID_1 + "=?";
         final String[] whereArgs = new String[]{list.getId()};
         ContentValues cv = ListUtil.toContentValues(list);
-        updateTask(list.getTasks());
         return getWritableDatabase().update(TABLE_NAME_1,cv,where,whereArgs);
     }
 
@@ -153,9 +152,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ArrayList<Task> tasks = new ArrayList<>();
         final String where = COLUMN_PARENT_LIST_ID_2 + "=?";
         final String [] whereArgs = new String[]{listId};
+        final String orderBy = " ASC";
         Log.i("DATABASE", "getTasks: ");
         try {
-            c = getReadableDatabase().query(TABLE_NAME_2, null, where, whereArgs, null, null, null, null);
+            c = getReadableDatabase().query(TABLE_NAME_2, null, where, whereArgs, null, null, COLUMN_TASK_ORDER_2 + orderBy, null);
             Log.i("DATABASE", "getTasks: All task which list id = listId => " + c.getCount());
             return TaskUtil.buildTasks(c);
         }finally {

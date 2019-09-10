@@ -12,68 +12,33 @@
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:navigationIcon="@drawable/back_icon"
-        app:subtitle="5/10 tasks"
         app:title="Home" />
 
-    <LinearLayout
-        android:id="@+id/list_info_linear_layout"
+    <TextView
+        android:id="@+id/task_count_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginEnd="25dp"
+        android:text="2/19" />
+
+    <ProgressBar
+        android:id="@+id/tasklist_task_progressbar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageButton
-            android:id="@+id/tasklist_color_image_button"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="26dp"
-            android:layout_marginTop="25dp"
-            android:background="@drawable/gradient_evening_sunshine"
-            android:clickable="false" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tasklist_list_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
-                android:layout_marginTop="15dp"
-                android:fontFamily="@font/roboto_medium"
-                android:text="Home"
-                android:textColor="#000000"
-                android:textSize="18sp" />
-
-            <TextView
-                android:id="@+id/tasklist_task_count_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
-                android:fontFamily="@font/roboto"
-                android:text="10 tasks"
-                android:textColor="#8E8E8E" />
-
-            <ProgressBar
-                android:id="@+id/tasklist_task_progressbar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="25dp"
-                android:layout_marginEnd="25dp" />
-
-        </LinearLayout>
-    </LinearLayout>
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/task_list_recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="26dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:visibility="visible">
 
     </androidx.recyclerview.widget.RecyclerView>
 

@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -24,13 +25,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.greenluck.todone.R;
 import com.greenluck.todone.adapter.AdapterTask;
 import com.greenluck.todone.data.database.DatabaseHelper;
+import com.greenluck.todone.interfaces.ItemTouchHelperViewHolder;
 import com.greenluck.todone.model.Task;
 import com.greenluck.todone.model.TaskList;
 import com.greenluck.todone.util.TimeUtil;
@@ -38,15 +41,13 @@ import com.greenluck.todone.util.TimeUtil;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 public class TaskListFragment extends Fragment {
 
-    private LinearLayout mListInfoLayout;
-    private ImageButton mListColorImageButton;
-    private TextView mListNameTextView;
-    private TextView mTaskCountTextView;
+    private TextView mTaskCountTextview;
     private ProgressBar mTaskProgressBar;
     private RecyclerView mTaskRecyclerView;
     private Toolbar mTaskToolbar;
@@ -59,7 +60,6 @@ public class TaskListFragment extends Fragment {
     private long settedTime;
 
     private TaskList mList;
-    private ArrayList<Task> mTasks;
     private DatabaseHelper mDatabaseHelper;
 
     private OnNavigationButtonClickListener mOnNavigationButtonClickListener;
@@ -95,29 +95,18 @@ public class TaskListFragment extends Fragment {
 
         mList = getArguments().getParcelable("list");
 
-        //Get tasks under list.
-        if (mList.getTaskCount() > 0){
-            mTasks = DatabaseHelper.getInstance(getContext()).getTasks(mList.getId());
-            if (mTasks.size() == 0){
-                mList.setTaskCount(0);
-            }
-        }else{
-            mTasks = new ArrayList<>();
-        }
+        mList.setTasks(mDatabaseHelper.getTasks(mList.getId()));
 
-        mList.setTasks(mTasks);
 
-        mListInfoLayout = (LinearLayout) v.findViewById(R.id.list_info_linear_layout);
         mTaskProgressBar = (ProgressBar) v.findViewById(R.id.tasklist_task_progressbar);
-        mListColorImageButton = (ImageButton) v.findViewById(R.id.tasklist_color_image_button);
-        mListNameTextView = (TextView) v.findViewById(R.id.tasklist_list_name);
         mAddTaskCardview = (CardView) v.findViewById(R.id.add_task_cardview);
         mNewTaskLinearLayout = (LinearLayout) v.findViewById(R.id.new_task_linearlayout);
         mTaskToolbar = (Toolbar) v.findViewById(R.id.task_list_toolbar);
-        mTaskCountTextView = (TextView) v.findViewById(R.id.tasklist_task_count_textview);
         mTaskNameEdittext = (EditText) v.findViewById(R.id.task_name_edittext);
         mAddTaskButton = (ImageButton) v.findViewById(R.id.add_task_image_button);
         mSetReminderButton = (Button) v.findViewById(R.id.set_reminder_button);
+        mTaskCountTextview = (TextView) v.findViewById(R.id.task_count_textview);
+        mTaskRecyclerView = v.findViewById(R.id.task_list_recyclerview);
 
         //Set toolbar.
         mTaskToolbar.inflateMenu(R.menu.menu_task_detail);
@@ -137,7 +126,6 @@ public class TaskListFragment extends Fragment {
         });
         mTaskToolbar.setNavigationIcon(R.drawable.back_icon);
         mTaskToolbar.setTitle(mList.getName());
-        mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
         mTaskToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,47 +135,43 @@ public class TaskListFragment extends Fragment {
         });
 
 
-        //Set progressbar.
+        //Set progressbar and task count tv
+        mTaskCountTextview.setText(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
         mTaskProgressBar.setMax(mList.getTaskCount());
-        mTaskProgressBar.setProgress(mList.getComplatedTaskCount());
+        mTaskProgressBar.post(new Runnable() {
+            @Override
+            public void run() {
+                mTaskProgressBar.setProgress(mList.getComplatedTaskCount());
+            }
+        });
+
+        Log.i("PROGRESS", "onCreateView: max => " + mTaskProgressBar.getMax() + " progress => " + mTaskProgressBar.getProgress());
 
         //Todo : Write easy to read code again.
         //Show list info (Color,Task count,Complated tasks)
         switch (mList.getColor()){
             case R.color.grade_gray:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.grade_gray), PorterDuff.Mode.SRC_IN);
-                mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_grade_grey));
                 mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.grade_gray));
                 break;
             case R.color.deep_orange:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.deep_orange), PorterDuff.Mode.SRC_IN);
-                mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_deep_orange));
                 mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.deep_orange));
                 break;
             case R.color.evening_sunshine:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.evening_sunshine), PorterDuff.Mode.SRC_IN);
-                mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_evening_sunshine));
                 mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.evening_sunshine));
                 break;
             case R.color.jade:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.jade), PorterDuff.Mode.SRC_IN);
-                mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_jade));
                 mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.jade));
                 break;
             case R.color.pinky_pink:
                 mTaskProgressBar.getProgressDrawable().setColorFilter(getContext().getResources().getColor(R.color.pinky_pink), PorterDuff.Mode.SRC_IN);
-                mListColorImageButton.setBackground(getContext().getDrawable(R.drawable.gradient_pinky_pink));
                 mTaskToolbar.setBackgroundColor(getResources().getColor(R.color.pinky_pink));
                 break;
         }
 
-        mListNameTextView.setText(mList.getName());
-        if (mList.getTaskCount() <= 1){            String taskCount = getString(R.string.task_count_equal_smalllerthan1,mList.getTaskCount());
-            mTaskCountTextView.setText(taskCount);
-        }else {
-            String taskCount = getString(R.string.task_count_biggerthan1,mList.getTaskCount());
-            mTaskCountTextView.setText(taskCount);
-        }
 
         //Add new task when user pressed enter on keyboard.
         mTaskNameEdittext.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -237,7 +221,6 @@ public class TaskListFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mNewTaskLinearLayout.setVisibility(View.GONE);
-                mListInfoLayout.setVisibility(View.GONE);
                 mAddTaskCardview.setVisibility(View.VISIBLE);
                 showSoftKeyboard(mTaskNameEdittext);
             }
@@ -255,7 +238,6 @@ public class TaskListFragment extends Fragment {
                         if (!isOpen){
                             mAddTaskCardview.setVisibility(View.GONE);
                             mNewTaskLinearLayout.setVisibility(View.VISIBLE);
-                            mListInfoLayout.setVisibility(View.VISIBLE);
                             settedTime = 0;
                         }else{
                             mSetReminderButton.setText("Reminder");
@@ -266,24 +248,76 @@ public class TaskListFragment extends Fragment {
 
 
         //Set recyclerview and adapter.
-        mTaskAdapter = new AdapterTask(mTasks, getContext(), new AdapterTask.CheckListener() {
+        mTaskAdapter = new AdapterTask(mList.getTasks(), getContext(), new AdapterTask.CheckListener() {
             @Override
             public void onCheck(boolean isChecked) {
                 if (isChecked){
-                    mTaskProgressBar.setProgress(mList.getTaskCount());
-                    mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
+                    mList.setComplatedTaskCount(mList.getComplatedTaskCount() + 1);
+                    mTaskCountTextview.setText(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
+                    mTaskProgressBar.setProgress(mList.getComplatedTaskCount());
                 }else{
-                    mTaskProgressBar.setProgress(mTaskProgressBar.getProgress() - 1);
-                    mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
+                    mList.setComplatedTaskCount(mList.getComplatedTaskCount() - 1);
+                    mTaskCountTextview.setText(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
+                    mTaskProgressBar.setProgress(mList.getComplatedTaskCount());
                 }
             }
         },mTaskClickListener,mList.getName());
-        mTaskRecyclerView = v.findViewById(R.id.task_list_recyclerview);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mTaskRecyclerView.getContext(), DividerItemDecoration.VERTICAL);
-        dividerItemDecoration.setDrawable(getContext().getDrawable(R.drawable.divider));
-        mTaskRecyclerView.addItemDecoration(dividerItemDecoration);
+
+
+        //RecyclerView adapter and divider.
         mTaskRecyclerView.setAdapter(mTaskAdapter);
-        mTaskRecyclerView.setLayoutManager(new GridLayoutManager(getContext(),1));
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
+        mTaskRecyclerView.setLayoutManager(linearLayoutManager);
+        //RecyclerView drag and drop.
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,0) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                final int position_dragged = viewHolder.getAdapterPosition();
+                final int position_target = target.getAdapterPosition();
+                int firstPos = linearLayoutManager.findFirstCompletelyVisibleItemPosition();
+                int offsetTop = 0;
+
+                View firstView = linearLayoutManager.findViewByPosition(firstPos);
+                offsetTop = firstView.getTop();
+
+
+                Collections.swap(mList.getTasks(),position_dragged,position_target);
+                mTaskAdapter.notifyItemMoved(position_dragged,position_target);
+
+                linearLayoutManager.scrollToPositionWithOffset(firstPos, offsetTop);
+
+
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+
+            }
+
+            @Override
+            public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+                if (actionState == ItemTouchHelper.DOWN || actionState == ItemTouchHelper.UP){
+                    if (viewHolder instanceof ItemTouchHelperViewHolder){
+                        ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
+                        itemViewHolder.onItemSelected();
+                    }
+                }
+                super.onSelectedChanged(viewHolder, actionState);
+            }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                if (viewHolder instanceof ItemTouchHelperViewHolder){
+                    ItemTouchHelperViewHolder itemViewHolder = (ItemTouchHelperViewHolder) viewHolder;
+                    itemViewHolder.onItemClear();
+                }
+                super.clearView(recyclerView, viewHolder);
+            }
+        });
+
+        itemTouchHelper.attachToRecyclerView(mTaskRecyclerView);
 
         return v;
     }
@@ -300,25 +334,30 @@ public class TaskListFragment extends Fragment {
 
     private void addNewTask(Task task){
         mList.addTask(task);
-        mTaskToolbar.setSubtitle(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
+        mList.setTaskCount(mList.getTaskCount() + 1);
+
         mTaskAdapter.notifyItemInserted(mList.getTaskCount() - 1);
         mTaskRecyclerView.scrollToPosition(mList.getTaskCount() - 1);
-        if (mList.getTaskCount() <= 1){
-            mTaskCountTextView.setText(getString(R.string.task_count_equal_smalllerthan1,mList.getTaskCount()));
-        }else {
-            mTaskCountTextView.setText(getString(R.string.task_count_biggerthan1,mList.getTaskCount()));
-        }
+
         mTaskNameEdittext.setText("");
         mSetReminderButton.setText("Due Date");
         settedTime = 0;
-        //Update progressbar
+
+        mTaskCountTextview.setText(getString(R.string.task_count,mList.getComplatedTaskCount(),mList.getTaskCount()));
         mTaskProgressBar.setMax(mList.getTaskCount());
     }
 
 
     @Override
     public void onStop() {
+        List<Task> tasks = mList.getTasks();
+
+        for (Task task : tasks){
+            task.setTaskOrder(tasks.indexOf(task));
+        }
+
         mDatabaseHelper.updateList(mList);
+        mDatabaseHelper.updateTask(tasks);
         super.onStop();
     }
 }

@@ -79,10 +79,7 @@ public class TaskList implements Parcelable {
 
 
     public void addTask(Task task){
-        if (mTasks == null)
-            mTasks = new ArrayList<>();
         mTasks.add(task);
-        mTaskCount = mTasks.size();
     }
 
     public String getId() {
@@ -117,17 +114,12 @@ public class TaskList implements Parcelable {
         return mTaskCount;
     }
 
-    public int getComplatedTaskCount(){
-        int count = 0;
-        if (mTasks == null)
-            return count;
+    public void setComplatedTaskCount(int complatedTaskCount){
+        mComplatedTaskCount = complatedTaskCount;
+    }
 
-        for (Task task : mTasks){
-            if (task.getStatus() == 1){
-                count++;
-            }
-        }
-        return count;
+    public int getComplatedTaskCount(){
+        return mComplatedTaskCount;
     }
 
     public void setTaskCount(int taskCount) {

@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -108,18 +107,20 @@ public class TaskListFragment extends Fragment {
         mTaskCountTextview = (TextView) v.findViewById(R.id.task_count_textview);
         mTaskRecyclerView = v.findViewById(R.id.task_list_recyclerview);
 
-        //Set toolbar.
-        mTaskToolbar.inflateMenu(R.menu.menu_task_detail);
+        mTaskToolbar.inflateMenu(R.menu.menu_task_list);
         mTaskToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.delete_button){
+                if (item.getItemId() == R.id.delete_list_item){
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("list",mList);
                     DeleteListDialogFragment fragment = new DeleteListDialogFragment();
                     fragment.setArguments(bundle);
                     fragment.show(getActivity().getSupportFragmentManager(),"delete_list");
-                    return true;
+                }else if(item.getItemId() == R.id.color_change_item){
+
+                }else if (item.getItemId() == R.id.rename_list_item){
+
                 }
                 return false;
             }

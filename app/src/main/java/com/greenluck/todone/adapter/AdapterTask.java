@@ -135,7 +135,7 @@ public class AdapterTask extends RecyclerView.Adapter<AdapterTask.TaskHolder> {
         public void onItemSelected() {
             itemView.setBackground(mContext.getDrawable(R.drawable.viewholder_border));
             itemView.setTranslationZ(7);
-            mDivider.setVisibility(View.GONE);
+            mDivider.setVisibility(View.INVISIBLE);
         }
 
         @Override

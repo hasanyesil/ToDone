@@ -10,9 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:theme="@style/AppTheme"
         app:navigationIcon="@drawable/back_icon"
-        app:title="Home" />
+        app:title="Home"
+        app:titleTextColor="#FFFFFF" />
 
     <TextView
         android:id="@+id/task_count_textview"

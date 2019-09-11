@@ -2,8 +2,13 @@ package com.greenluck.todone.view.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.transition.Slide;
 
 import android.os.Bundle;
+import android.view.Gravity;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.greenluck.todone.R;
 import com.greenluck.todone.data.database.DatabaseHelper;
@@ -53,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
         Bundle bundle = new Bundle();
         bundle.putParcelable("list",list);
 
+        Slide slideLeftTransaction = new Slide(Gravity.LEFT);
+        slideLeftTransaction.setDuration(200);
+        mTaskFragment.setExitTransition(slideLeftTransaction);
+
         mTaskFragment.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container,mTaskFragment,"TaskListFragment")
@@ -88,7 +97,13 @@ public class MainActivity extends AppCompatActivity implements MainFragment.OnLi
             bundle.putString("Listname",listName);
             mTaskDetailFragment = new TaskDetailFragment();
             mTaskDetailFragment.setArguments(bundle);
+
+            Slide slideBottomTransaction = new Slide(Gravity.RIGHT);
+            slideBottomTransaction.setDuration(200);
+            mTaskDetailFragment.setEnterTransition(slideBottomTransaction);
+
             getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in,0,0,android.R.anim.fade_out)
                     .replace(R.id.fragment_container,mTaskDetailFragment,"TaskDetailFragment")
                     .addToBackStack(null)
                     .commit();
